@@ -15,6 +15,8 @@ app.use(express.json());
 
 //Mis rutas
 app.use('/api/login', require('./routes/auth'));
+app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/mensajes', require('./routes/mensajes'));
 
 //Node Server
 const server = require('http').createServer(app);

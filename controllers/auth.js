@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const Usuario = require('../models/usuario');
 const bcrypt = require('bcryptjs');
 const { generarJWT } = require('../helpers/jwt');
-const usuario = require('../models/usuario');
+//const usuario = require('../models/usuario');
 
 const crearUsuario = async (req, res = response) => {
 
@@ -43,7 +43,8 @@ const crearUsuario = async (req, res = response) => {
 
         res.json({
             ok: true,
-            msg: usuario,
+            msg: 'Registro OK',
+            usuario: usuario,
             token: token
         });
 
@@ -87,7 +88,7 @@ const login = async (req, res = response) => {
         res.json({
             ok: true,
             msg: 'Login OK',
-            userId: usuarioDB.id,
+            usuario: usuarioDB,
             token: token
         });
 
@@ -114,6 +115,7 @@ const renewToken = async (req, res = response) => {
 
     res.json({
         ok: true,
+        msg: 'Renovación OK',
         usuario: usuarioDB,
         token: token
     });

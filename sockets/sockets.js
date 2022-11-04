@@ -1,4 +1,7 @@
 const {io} = require('../index');
+const { comprobarJWT } = require('../helpers/jwt');
+const { usuarioConectado, usuarioDesconectado} = require('../controllers/socket');
+const {grabarMensaje} = require('../controllers/socket');
 // const Band = require('../models/band');
 // //const Band = require('../models/band');
 // const Bands = require('../models/bands');
@@ -19,18 +22,40 @@ io.on('connection', client => {
     console.log('Cliente conectado');
 
     //client.emit('bandas-activas', bands.getBands());
-
     //client.on('event', data => { /* … */ });
-    client.on('disconnect', () => {
+    
+   console.log(client.handshake.headers['x-token']);
+   const [valido, uid] = comprobarJWT(client.handshake.headers['x-token']);
 
-        console.log('Cliente desconectado');
-     });
+   //Verificar autenticacion
+   if(!valido){return client.disconnect();}
 
-     client.on('mensaje', (payload)=> {
-        console.log('Mensaje!!!!', payload);
+   //El cliente está conectado...
+   usuarioConectado(uid);
 
-        io.emit('mensaje', {admin: 'Nuevo mensaje'});
-     });
+   //ingresar al usuario a una sala especifica
+   client.join(uid);
+
+   client.on('disconnect', () => {
+
+      console.log('Cliente desconectado');
+      usuarioDesconectado(uid);
+   });
+
+   //Escuchar el mensaje personal
+   client.on('mensaje-personal', async (payload) => {
+      //console.log(payload);
+      //Grabar mensaje
+      await grabarMensaje(payload);
+
+      io.to(payload.para).emit('mensaje-personal', payload);
+   });
+
+   // client.on('mensaje', (payload)=> {
+   //    console.log('Mensaje!!!!', payload);
+
+   //    io.emit('mensaje', {admin: 'Nuevo mensaje'});
+   // });
 
     //  client.on('emitir-mensaje', (payload) => {
     //      //Esto emite a todos
